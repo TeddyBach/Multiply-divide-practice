@@ -1,12 +1,14 @@
-import mysql.connector, random, datetime, time
-from config import user, password
+import mysql.connector, random, time
+from config import  host, user, password
+from datetime import datetime
 
+name = input("What is your name? ")
 table = int(input("What times table should we use? "))
 reps = int(input("How many questions would you like to practice with? "))
 count = 0
 minutes_or_seconds = "seconds"
 
-current_datetime = datetime.datetime.now()
+current_datetime = datetime.now()
 start_time = time.time()
 
 while True:
@@ -69,23 +71,40 @@ while True:
   time_spent = int(end_time - start_time)
   if time_spent >= 60:
     minutes_or_seconds = "minutes"
-    print("Your score was", str(count), "out of", str(reps), "and spent", str(round(time_spent / 60, 1)), minutes_or_seconds)
+    print("Your score was", str(count), "out of", str(reps), "and spent", str(round(time_spent / 60, 2)), minutes_or_seconds)
   else:
     print("Your score was", str(count), "out of", str(reps), "and spent", str(time_spent), minutes_or_seconds)
   
   time_per_question = time_spent / reps
   
+  time_per_question = time.strftime('%H:%M:%S', time.gmtime(time_per_question))
+  time_spent = time.strftime('%H:%M:%S', time.gmtime(time_spent))
+  
+  #time_per_question_obj = time.strftime('%H:%M:%S', time_per_question_obj)
+
+  #time_per_question = time.strptime(time_per_question, '%H:%M:%S')
+  #print(time_per_question_obj,type(time_per_question_obj))
+  #hours = time_per_question_obj // 3600
+  #minutes = time_per_question_obj % 3600 // 60
+  #seconds = time_per_question_obj % 60
+  #time_per_question = f"{hours:02d}:{minutes:02d}:{seconds:02d}"
+
+
+  #print(host, user, password)
+
+
   mydb = mysql.connector.connect(
-    host="localhost",
+    host=host,
     user=user,
     password=password,
     database="Multiply_divide_practice"
   )
   
   mycursor = mydb.cursor()
-  
-  sql = "INSERT INTO Multiply_divide_practice (Date_completed, Number_correct, Total_number, Time_spent, Times_table, Time_per_question) VALUES (%s, %s, %s, %s, %s, %s);"
-  val = (current_datetime, count, reps, time_spent, table, time_per_question)
+  #
+
+  sql = "INSERT INTO Multiply_divide_practice (Date_completed, Number_correct, Total_number, Time_spent, Times_table, Time_per_question, name) VALUES (%s, %s, %s, %s, %s, %s, %s);"
+  val = (current_datetime, count, reps, time_spent, table, time_per_question, name)
   mycursor.execute(sql, val)
   
   mydb.commit()
@@ -93,7 +112,7 @@ while True:
   print(mycursor.rowcount, "record inserted.")
 
   go_again = input("Would you like to go again? (y/n) ")
+  count = 0
   if go_again == "n":
     break
-
 
